@@ -7,7 +7,7 @@ using the library [phpCAS](https://github.com/apereo/phpCAS).
 Usage
 -----
 
-1. Add this to the project with `composer require silecs/yii2-auth-cas`
+1. Add this to the project with `composer require ekalokman/yii2-auth-uni`
 
 2. Configure the Yii2 application, e.g. in `backend/config/main.php` :
 
