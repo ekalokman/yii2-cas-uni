@@ -1,0 +1,27 @@
+{
+    "name": "ekalokman/yii2-cas-uni",
+    "description": "CAS authentication for Yii2 from silecs/yii2-auth-cas",
+    "type": "yii2-extension",
+    "keywords": ["yii", "yii2", "authentication", "CAS"],
+    "require": {
+        "php": ">=7.4.0",
+        "apereo/phpcas": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "silecs\\yii2auth\\cas\\" : "src"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nur Zulaikha Lokman",
+            "email": "ekalokman95@gmail.com"
+        }
+    ],
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
+    }
+}
