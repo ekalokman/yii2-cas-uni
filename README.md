@@ -59,7 +59,7 @@ Usage
     use yii\base\Model;
     use phpCAS;
     use yii\helpers\Url;
-    use common\models\UserCas;
+    use common\models\User;
     use backend\models\StudentSt;
 
     /**
@@ -106,7 +106,7 @@ Usage
                 exit;
             }else{
 
-                $userCas = UserCas::findByUsername($username);
+                $userCas = User::findByUsername($username);
                 //  echo json_encode($userCas);
                 //  exit;
 
