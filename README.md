@@ -1,4 +1,4 @@
-yii2-auth-cas
+yii2-cas-uni
 =============
 
 Yii2 library for authentication by CAS,
