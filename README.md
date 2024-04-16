@@ -20,7 +20,8 @@ Usage
                 'config' => [
                     'host' => 'ssoserver.example.com',
                     'port' => '443',
-                    'path' => '/idp/profile/cas',
+                    'path' => '/cas',
+                    'returnUrl' => '',
                     // optional parameters
                     'certfile' => '', // empty, or path to a SSL cert, or false to ignore certs
                     'debug' => true, // will add many logs into X/runtime/logs/cas.log
@@ -46,6 +47,88 @@ Usage
         }
         return $this->goHome();
     }
+    ```
+
+3. Add actions that use this CAS module, e.g. in `LoginCas.php` :
+
+    ```
+    <?php
+    namespace common\models;
+
+    use Yii;
+    use yii\base\Model;
+    use phpCAS;
+    use yii\helpers\Url;
+    use common\models\UserCas;
+    use backend\models\StudentSt;
+
+    /**
+    * Login form
+    */
+    class LoginCas extends Model
+    {
+        private $_user;
+
+        /**
+        * @inheritdoc
+        */
+        public function rules()
+        {
+            return [
+            ];
+        }
+        
+        public function casAuthenticate($username)
+        {
+
+            $cStudentSt=new StudentSt();
+            $StuData=$cStudentSt->getDataSt($username);
+            
+            if($StuData){
+                Yii::$app->user->logout();
+
+                unset($_COOKIE);
+
+                Yii::$app->user->logout();
+
+                //  echo json_encode(Url::base(true));
+                //  exit;
+                // window.location = '/registration/cas/auth/logout';
+
+                header("cache-Control: no-store, no-cache, must-revalidate");
+                header("cache-Control: post-check=0, pre-check=0", false);
+                header("Pragma: no-cache");
+                header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+            
+                echo "<script>alert('Unauthorized access! This application only allow for staff. \\nKindly contact the Administrator if any issue.');
+                            window.location = 'https://cas.iium.edu.my:8448/cas/logout';
+                </script>";
+                exit;
+            }else{
+
+                $userCas = UserCas::findByUsername($username);
+                //  echo json_encode($userCas);
+                //  exit;
+
+                if ($userCas->id == null) {
+
+                    $con = \Yii::$app->db;
+                    $attributes = [
+                        'username' => $username,
+                        'auth_key' => Yii::$app->security->generateRandomString(),
+                        'status' => '10',
+                        'created_at' => time(),
+                        'updated_at' => time()
+                    ];
+                    $con->createCommand()->insert('quest.qst_sp_user', $attributes)->execute();
+
+                }
+
+            }
+        }
+
+    }
+
     ```
 
 
