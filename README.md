@@ -49,7 +49,7 @@ Usage
     }
     ```
 
-3. Add actions that use this CAS module, e.g. in `LoginCas.php` :
+3. Add actions that use casAuthenticate to check user is student or staff and register new user, in `LoginCas.php` :
 
     ```
     <?php
