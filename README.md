@@ -120,7 +120,7 @@ Usage
                         'created_at' => time(),
                         'updated_at' => time()
                     ];
-                    $con->createCommand()->insert('quest.qst_sp_user', $attributes)->execute();
+                    $con->createCommand()->insert('table_name', $attributes)->execute();
 
                 }
 
