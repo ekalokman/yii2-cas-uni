@@ -57,7 +57,6 @@ Usage
 
     use Yii;
     use yii\base\Model;
-    use phpCAS;
     use yii\helpers\Url;
     use common\models\User;
     use backend\models\StudentSt;
