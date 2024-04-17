@@ -4,7 +4,7 @@
     "type": "yii2-extension",
     "keywords": ["yii", "yii2", "authentication", "CAS"],
     "require": {
-        "php": ">=7.4.0",
+        "php": ">=7.2.0",
         "apereo/phpcas": "^1.6"
     },
     "autoload": {
