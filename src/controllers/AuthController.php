@@ -30,8 +30,11 @@ class AuthController extends \yii\web\Controller
 
         if ($username) {
 
-            $student = StudentSt::findByUsername($username);
-            
+            $student = StudentSt::find()
+                    ->where(['matric_no' => $username])
+                    ->andWhere(['status' => null])
+                    ->one();
+                    
             // $userClass = Yii::$app->user->identityClass; //asal
 
             if ($student) {
