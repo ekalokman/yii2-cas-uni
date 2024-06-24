@@ -10,7 +10,7 @@ use Yii;
 use yii\helpers\Url;
 use common\models\LoginCas;
 use common\models\User;
-use common\models\Student;
+use common\models\StudentSt;
 
 /**
  * A controller inside the Module that will handle the HTTP query of the CAS server.
@@ -30,7 +30,7 @@ class AuthController extends \yii\web\Controller
 
         if ($username) {
 
-            $student = Student::findByUsername($username);
+            $student = StudentSt::findByUsername($username);
             
             // $userClass = Yii::$app->user->identityClass; //asal
 
