@@ -35,7 +35,7 @@ class AuthController extends \yii\web\Controller
             // $userClass = Yii::$app->user->identityClass; //asal
 
             if ($student) {
-                $userClass = QstStudent::class;
+                $userClass = Student::class;
             }else{
                 $userClass = User::class;
             }
