@@ -35,11 +35,9 @@ class AuthController extends \yii\web\Controller
             // $userClass = Yii::$app->user->identityClass; //asal
 
             if ($student) {
-                $userComponent = Yii::$app->get('student'); // Use the alias @student
-                $userClass = Student::class;
+                $userClass = Yii::$app->user->identityClassStudent;
             }else{
-                $userComponent = Yii::$app->get('user'); // Default user component
-                $userClass = User::class;
+                $userClass = Yii::$app->user->identityClass;
             }
 
             $user = $userClass::findIdentity($username);
