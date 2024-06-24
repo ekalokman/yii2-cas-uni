@@ -9,6 +9,8 @@ namespace silecs\yii2auth\cas\controllers;
 use Yii;
 use yii\helpers\Url;
 use common\models\LoginCas;
+use common\models\User;
+use common\models\Student;
 
 /**
  * A controller inside the Module that will handle the HTTP query of the CAS server.
@@ -25,9 +27,21 @@ class AuthController extends \yii\web\Controller
     {
         $this->module->casService->forceAuthentication();
         $username = $this->module->casService->getUsername();
+
         if ($username) {
-            $userClass = Yii::$app->user->identityClass;
+
+            $student = Student::findByUsername($username);
+            
+            // $userClass = Yii::$app->user->identityClass; //asal
+
+            if ($student) {
+                $userClass = QstStudent::class;
+            }else{
+                $userClass = User::class;
+            }
+
             $user = $userClass::findIdentity($username);
+            
             if ($user) {
                 Yii::$app->user->login($user);
             } else {
