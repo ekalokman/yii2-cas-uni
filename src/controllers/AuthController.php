@@ -8,6 +8,7 @@ namespace silecs\yii2auth\cas\controllers;
 
 use Yii;
 use yii\helpers\Url;
+use yii\helpers\BaseJson;
 use common\models\LoginCas;
 use common\models\User;
 use common\models\StudentSt;
@@ -23,28 +24,16 @@ use common\models\StudentSt;
  */
 class AuthController extends \yii\web\Controller
 {
+
     public function actionLogin()
     {
         $this->module->casService->forceAuthentication();
         $username = $this->module->casService->getUsername();
-
         if ($username) {
-
-            $student = StudentSt::find()
-                    ->where(['matric_no' => $username])
-                    ->andWhere(['status' => null])
-                    ->one();
-                    
-            // $userClass = Yii::$app->user->identityClass; //asal
-
-            if ($student) {
-                $userClass = Yii::$app->student->identityClass;
-            }else{
-                $userClass = Yii::$app->user->identityClass;
-            }
-
+            $userClass = Yii::$app->user->identityClass;
             $user = $userClass::findIdentity($username);
-            
+            // echo BaseJson::encode($user);
+            // exit;
             if ($user) {
                 Yii::$app->user->login($user);
             } else {
@@ -56,6 +45,41 @@ class AuthController extends \yii\web\Controller
         }
         return $this->goBack();
     }
+
+    
+    // public function actionLogin()
+    // {
+    //     $this->module->casService->forceAuthentication();
+    //     $username = $this->module->casService->getUsername();
+
+    //     if ($username) {
+
+    //         $student = StudentSt::find()
+    //                 ->where(['matric_no' => $username])
+    //                 ->andWhere(['status' => null])
+    //                 ->one();
+                    
+    //         // $userClass = Yii::$app->user->identityClass; //asal
+
+    //         if ($student) {
+    //             $userClass = Yii::$app->student->identityClass;
+    //         }else{
+    //             $userClass = Yii::$app->user->identityClass;
+    //         }
+
+    //         $user = $userClass::findIdentity($username);
+            
+    //         if ($user) {
+    //             Yii::$app->user->login($user);
+    //         } else {
+    //             // throw new \yii\web\HttpException(403, "This user has no access to the application.");
+    //             LoginCas::casAuthenticate($username);
+    //             $user = $userClass::findIdentity($username);
+    //             Yii::$app->user->login($user);
+    //         }
+    //     }
+    //     return $this->goBack();
+    // }
 
     public function actionLogout()
     {
