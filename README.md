@@ -18,10 +18,10 @@ Usage
             'cas' => [
                 'class' => 'silecs\yii2auth\cas\CasModule',
                 'config' => [
-                    'host' => 'ssoserver.example.com',
-                    'port' => '443',
+                    'host' => 'ssoserver.example.com', //insert your own host
+                    'port' => '443', //insert your own port
                     'path' => '/cas',
-                    'returnUrl' => '',
+                    'returnUrl' => '', //insert your own return url
                     // optional parameters
                     'certfile' => '', // empty, or path to a SSL cert, or false to ignore certs
                     'debug' => true, // will add many logs into X/runtime/logs/cas.log
@@ -29,7 +29,7 @@ Usage
             ],
     ```
 
-3. Add actions that use this CAS module, e.g. in `SiteController` :
+3. Add actions that use this CAS module, in `SiteController` :
 
     ```
     public function actionLogin()
@@ -49,16 +49,18 @@ Usage
     }
     ```
 
-3. Add actions that use casAuthenticate to check user is student or staff and register new user, in `LoginCas.php` :
+3. Add actions that use casAuthenticate to check user is student or staff and register new user, in `common/models/LoginCas.php` :
 
     ```
-    <?php
+   <?php
     namespace common\models;
 
     use Yii;
     use yii\base\Model;
+    use phpCAS;
     use yii\helpers\Url;
     use common\models\User;
+    use common\models\Student;
     use backend\models\StudentSt;
 
     /**
@@ -76,50 +78,127 @@ Usage
             return [
             ];
         }
+
+        /**
+        * Logs in a user using the provided username and password.
+        *
+        * @return boolean whether the user is logged in successfully
+        */
+        public function login()
+        {
+            $user = $this->casAuthenticate();
         
-        public function casAuthenticate($username)
+            if ($user) {
+                $user = $this->getUser($user);
+                return Yii::$app->user->login($user, false ? 3600 * 24 * 30 : 0);
+            } else {
+                return false;
+            }
+        }
+
+        /**
+        * Finds user by [[username]]
+        *
+        * @return User|null
+        */
+        protected function getUser($user)
+        {
+            if ($this->_user === null) {
+                $this->_user = UserCas::findByUsername($user);
+            }
+
+            return $this->_user;
+        }
+
+        public static function casAuthenticate($username)
         {
 
-            $cStudentSt=new StudentSt();
+            //may change checking below if want to check staff only
+            $cStudentSt=new StudentSt(); //for checking username whether student or staff
             $StuData=$cStudentSt->getDataSt($username);
+
+            $baseUrl = Url::base(true);
+            $baseUrl = Url::base();
+
+            //for student screen
+            if ($baseUrl == '/stu'){
             
-            if($StuData){
-                Yii::$app->user->logout();
+                if($StuData){ // for student checking username is student: true and not null
 
-                unset($_COOKIE);
+                    $userCas = Student::findByUsername($username);
 
-                Yii::$app->user->logout();
+                    if (empty($userCas)) {
 
-                //  echo json_encode(Url::base(true));
-                //  exit;
-                // window.location = '/registration/cas/auth/logout';
+                            $con = \Yii::$app->db;
+                            $attributes = [
+                                'username' => $username,
+                                'auth_key' => Yii::$app->security->generateRandomString(),
+                                'status' => '10',
+                                'created_at' => time(),
+                                'updated_at' => time()
+                            ];
+                            $con->createCommand()->insert('quest.qst_student', $attributes)->execute();
+                        // $user = $this->getUser();
 
-                header("cache-Control: no-store, no-cache, must-revalidate");
-                header("cache-Control: post-check=0, pre-check=0", false);
-                header("Pragma: no-cache");
-                header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-            
-                echo "<script>alert('Unauthorized access! This application only allow for staff. \\nKindly contact the Administrator if any issue.');
-                            window.location = 'https://cas.iium.edu.my:8448/cas/logout';
-                </script>";
-                exit;
-            }else{
+                    }
 
-                $userCas = User::findByUsername($username);
-                //  echo json_encode($userCas);
-                //  exit;
+                }else{ //student is false
 
-                if ($userCas->id == null) {
+                    Yii::$app->user->logout();
+                    unset($_COOKIE);
 
-                    $con = \Yii::$app->db;
-                    $attributes = [
-                        'username' => $username,
-                        'auth_key' => Yii::$app->security->generateRandomString(),
-                        'status' => '10',
-                        'created_at' => time(),
-                        'updated_at' => time()
-                    ];
-                    $con->createCommand()->insert('table_name', $attributes)->execute();
+                    Yii::$app->user->logout();
+
+                    header("cache-Control: no-store, no-cache, must-revalidate");
+                    header("cache-Control: post-check=0, pre-check=0", false);
+                    header("Pragma: no-cache");
+                    header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+                
+                    echo "<script>alert('Unauthorized access! This application only allow for IIUM student. \\nKindly contact the Administrator if any issue.');
+                                window.location = 'https://cas.iium.edu.my:8448/cas/logout';
+                    </script>";
+                    exit;
+
+                }
+
+            //for staff screen
+            }else{ 
+
+                if(empty($StuData)){ //for staff checking username is student: false and null
+
+                    $userCas = User::findByUsername($username); //checking staff is a
+
+                    if ($userCas === null || $userCas->username === null) {
+
+                        $con = \Yii::$app->db;
+                        $attributes = [
+                            'username' => $username,
+                            'auth_key' => Yii::$app->security->generateRandomString(),
+                            'status' => '10',
+                            'created_at' => time(),
+                            'updated_at' => time()
+                        ];
+                        $con->createCommand()->insert('table.user', $attributes)->execute(); //insert to your own table
+
+                    }
+
+                }else{//student is true and not staff
+
+                    Yii::$app->user->logout();
+
+                    unset($_COOKIE);
+
+                    Yii::$app->user->logout();
+
+                    header("cache-Control: no-store, no-cache, must-revalidate");
+                    header("cache-Control: post-check=0, pre-check=0", false);
+                    header("Pragma: no-cache");
+                    header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+                
+                    echo "<script>alert('Unauthorized access! This application only allow for IIUM staff. \\nKindly contact the Administrator if any issue.');
+                                window.location = 'https://cas.iium.edu.my:8448/cas/logout';
+                    </script>";
+                    exit;
 
                 }
 
