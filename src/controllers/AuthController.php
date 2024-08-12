@@ -28,6 +28,11 @@ class AuthController extends \yii\web\Controller
     public function actionLogin()
     {
         $this->module->casService->forceAuthentication();
+        $details = $this->module->casService->getAttributes(); //to get all data attributes
+        // echo BaseJson::encode($details);
+        // echo BaseJson::encode($details['employeenumber']);
+        // exit;
+
         $username = $this->module->casService->getUsername();
         if ($username) {
             $userClass = Yii::$app->user->identityClass;

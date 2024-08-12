@@ -104,4 +104,15 @@ class CasService extends \yii\base\BaseObject
     {
         phpCAS::setVerbose($debug);
     }
+
+        /**
+     * Return the all attributes if authenticated by CAS, else the empty array.
+     */
+    public function getAttributes(): array
+    {
+        if (phpCAS::isAuthenticated()) {
+            return phpCAS::getAttributes();
+        }
+        return "";
+    }
 }
