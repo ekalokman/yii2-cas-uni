@@ -29,6 +29,7 @@ class AuthController extends \yii\web\Controller
     {
         $this->module->casService->forceAuthentication();
         $details = $this->module->casService->getAttributes(); //to get all data attributes
+        Yii::$app->session->set('attDetails', $this->module->casService->getAttributes()); //set 'attDetails' session for the data attributes
         // echo BaseJson::encode($details);
         // echo BaseJson::encode($details['employeenumber']);
         // exit;
